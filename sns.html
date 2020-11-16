@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>SNS Timeline</title>
+    <style>
+        html,body{
+            padding: 0;
+            margin: 0;
+        }
+        .container {
+            background-color: #ddd;
+            padding: 15px 40px 20px 40px;
+            margin: 30px;
+            border-radius: 10px;
+        }
+        h2{
+            margin-bottom: 30px;
+            font-size: 30px;
+        }
+        .header{
+            padding: 100px 0px;
+            background-color: #303F4A;
+            height: 100px;
+            margin: 0;
+        }
+        h1 {
+            color: white;
+            line-height: 20px;
+            text-align: center;
+            font-weight: inherit;
+            font-size: 49px;
+            padding-bottom: 50px;
+        }
+        textarea{
+            width: 100%;
+            border-color: #b1b1b1;
+            border-radius: 5px;
+                 }
+        button{
+            padding: 5px;
+            border-radius: 5px;
+            border: none;
+            width: 5%;
+            box-shadow:  0 4px 16px hsla(240, 8%, 12%, 0.15)
+        }
+    </style>
+</head>
+<body>
+<header class="header">
+    <h1>SNS Timeline | ReactStudy</h1>
+</header>
+<div class="container">
+    <textarea name="" id="" cols="100" rows="10"></textarea>
+    <button onclick="postClick()">작성</button>
+</div>
+<div id="timeline">
+    <div class="container">
+        <h2>작성자</h2>
+        <p>내용</p>
+    </div>
+</div>
+<script>
+    let postInput = document.querySelector("textarea");
+    let timeline = document.querySelector("#timeline");
+
+    window.onload = async () => {
+        const postResponse = await fetch('http://ec2-52-78-131-251.ap-northeast-2.compute.amazonaws.com/feed/',{
+            method: 'get',
+        });
+        const posts = await postResponse.json();
+
+        for (let i = 0; i<posts.length; i++){
+            console.log(posts[i]);
+            post(posts[i].owner, posts[i].content);
+        }
+    }
+
+    const postClick = async () => {
+        if(postInput.value == "") alert("내용을 작성해주세요.");
+
+        post('owner', postInput.value);
+
+        await fetch('http://ec2-52-78-131-251.ap-northeast-2.compute.amazonaws.com/feed/',{
+            method:'post',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                content: postInput.value,
+                owner: "owner",
+            }),
+        });
+
+        postInput.value = "";
+    };
+
+    const post = (name, description) => {
+        // if (postInput.value == "") alert('내용을 작성해주세요.');
+
+        let container = document.createElement('div');
+        let owner = document.createElement('h2');
+        let content = document.createElement('p');
+        owner.appendChild(document.createTextNode(name));
+        content.appendChild(document.createTextNode(description));
+
+
+        container.setAttribute('class', 'container');
+        container.appendChild(owner);
+        container.appendChild(content);
+
+        timeline.appendChild(container);
+
+    };
+</script>
+</body>
+</html>
